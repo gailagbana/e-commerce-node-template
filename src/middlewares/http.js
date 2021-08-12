@@ -1,38 +1,36 @@
 /**
  * @author Oguntuberu Nathan O. <nateoguns.work@gmail.com>
-**/
+ * */
 const { logger } = require('../utilities/logger');
 
 module.exports = {
     handle404(request, response, next) {
-        const return_data = {
-            status_code: 404,
-            error: `Resource not found`,
-            payload: null
+        const returnData = {
+            status: 404,
+            error: 'Resource not found',
+            payload: null,
         };
 
-        next(return_data);
+        next(returnData);
     },
 
-    handleError(error, request, response, next) {
-
+    handleError(error, request, response) {
         // Log errors
         logger.error(error.error || error.message);
 
         // return error
-        return response.status(error.status_code || 500).json({
-            status_code: error.status_code || 500,
-            error: error.error || `Internal Server Error`,
-            payload: null
+        return response.status(error.status || 500).json({
+            status: error.status || 500,
+            error: error.error || 'Internal Server Error',
+            payload: null,
         });
     },
-
 
     processResponse(request, response, next) {
         if (!request.payload) return next();
 
-        const { status_code } = request.payload;
-        return response.status(status_code).json(request.payload)
+        const { status } = request.payload;
+        return response.status(status).json(request.payload);
     },
 
     setupRequest(request, response, next) {
@@ -46,4 +44,4 @@ module.exports = {
 
         next();
     },
-}
+};
