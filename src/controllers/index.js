@@ -11,13 +11,11 @@ class Controller {
     static deleteRecordMetadata(record) {
         const recordToMutate = { ...record };
 
-        //
         delete recordToMutate.timeStamp;
         delete recordToMutate.createdOn;
         delete recordToMutate.updatedOn;
         delete recordToMutate._v;
 
-        //
         return { ...recordToMutate };
     }
 
