@@ -1,44 +1,45 @@
 /**
  * @author Oguntuberu Nathan O. <nateoguns.work@gmail.com>
-**/
+ * */
 
-let { model, Schema } = require('mongoose');
-let SampleSchema = new Schema({
+const { model, Schema } = require('mongoose');
+
+const SampleSchema = new Schema({
     id: {
         type: Number,
         required: true,
         default: 0,
     },
-    compound_index_a: {
+    compoundIndexA: {
         type: String,
         required: true,
     },
-    compound_index_b: {
+    compoundIndexB: {
         type: Number,
         required: true,
     },
-    //
-    is_active: {
+    // Model Required fields
+    isActive: {
         type: Boolean,
         required: true,
         default: true,
     },
-    is_deleted: {
+    isDeleted: {
         type: Boolean,
         required: true,
         default: false,
     },
-    time_stamp: {
+    timeStamp: {
         type: Number,
         required: true,
         default: () => Date.now(),
     },
-    created_on: {
+    createdOn: {
         type: Date,
         required: true,
         default: () => new Date(),
     },
-    updated_on: {
+    updatedOn: {
         type: Date,
         required: true,
         default: () => new Date(),

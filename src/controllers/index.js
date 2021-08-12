@@ -1,105 +1,118 @@
 /**
  * @author Oguntuberu Nathan O. <nateoguns.work@gmail.com>
-**/
+ * */
 const mongoose = require('mongoose');
 
-/** */
 class Controller {
-    constructor (model_name) {
-        this.model = mongoose.model(model_name);
+    constructor(modelName) {
+        this.model = mongoose.model(modelName);
     }
-    
-    deleteRecordMetadata (record) {
-        let record_to_mutate = { ...record };
+
+    static deleteRecordMetadata(record) {
+        const recordToMutate = { ...record };
 
         //
-        delete record_to_mutate.timestamp;
-        delete record_to_mutate.created_on;
-        delete record_to_mutate.updated_on;
-        delete record_to_mutate._v;
+        delete recordToMutate.timeStamp;
+        delete recordToMutate.createdOn;
+        delete recordToMutate.updatedOn;
+        delete recordToMutate._v;
 
         //
-        return { ...record_to_mutate };
+        return { ...recordToMutate };
     }
 
-    jsonize(data) {
-        return JSON.parse(JSON.stringify(data))
+    static jsonize(data) {
+        return JSON.parse(JSON.stringify(data));
     }
 
-    async setUniqueKey (model, _id, time_stamp) {
-        const n = (await model.estimatedDocumentCount({ time_stamp: { $lt: time_stamp } })) + 1;
+    static async setUniqueKey(model, _id, timeStamp) {
+        const n = (await model.estimatedDocumentCount({ timeStamp: { $lt: timeStamp } })) + 1;
         await model.updateOne({ _id }, { id: n });
         return n;
     }
 
-    /** */
-
     async createRecord(data) {
         try {
-            const record_to_create = new this.model({ ...data });
-            const created_record = await record_to_create.save();
+            const recordToCreate = new this.model({ ...data });
+            const createdRecord = await recordToCreate.save();
 
             return {
-                ...this.jsonize(created_record),
-                id: await this.setUniqueKey(this.model, created_record._id, created_record.time_stamp),
+                ...Controller.jsonize(createdRecord),
+                id: await Controller.setUniqueKey(
+                    this.model,
+                    createdRecord._id,
+                    createdRecord.timeStamp
+                ),
             };
         } catch (e) {
-            console.log(`[SampleController] create_record Error: ${e.message}`);
+            console.log(`[SampleController] createRecord Error: ${e.message}`);
+            return null;
         }
     }
 
-    async readRecords(conditions, fields_to_return = '', sort_options = '', count = false, skip = 0, limit = Number.MAX_SAFE_INTEGER) {
+    async readRecords(
+        conditions,
+        fieldsToReturn = '',
+        sortOptions = '',
+        count = false,
+        skip = 0,
+        limit = Number.MAX_SAFE_INTEGER
+    ) {
         try {
             let result = null;
             if (count) {
-                result = await this.model.countDocuments({ ...conditions })
+                result = await this.model
+                    .countDocuments({ ...conditions })
                     .skip(skip)
                     .limit(limit)
-                    .sort(sort_options);
-                return {
-                    count: result,
-                };
-            } else {
-                result = await this.model.find({ ...conditions }, fields_to_return)
-                    .skip(skip)
-                    .limit(limit)
-                    .sort(sort_options);
-                return this.jsonize([...result]);
+                    .sort(sortOptions);
+                return { count: result };
             }
+            result = await this.model
+                .find({ ...conditions }, fieldsToReturn)
+                .skip(skip)
+                .limit(limit)
+                .sort(sortOptions);
+            return Controller.jsonize([...result]);
         } catch (e) {
-            console.log(`[SampleController] read_records: ${e.message}`);
+            console.log(`[SampleController] readRecords: ${e.message}`);
+            return null;
         }
     }
 
     async updateRecords(conditions, data) {
         try {
-            const data_to_set = this.deleteRecordMetadata(data);
-            const result = await this.model.updateMany({
-                ...conditions
-            }, {
-                ...data_to_set,
-                $currentDate: { updated_on: true }
-            });
+            const dataToSet = Controller.deleteRecordMetadata(data);
+            const result = await this.model.updateMany(
+                { ...conditions },
+                {
+                    ...dataToSet,
+                    $currentDate: { updatedOn: true },
+                }
+            );
 
-            return this.jsonize({ ...result, data });
+            return Controller.jsonize({ ...result, data });
         } catch (e) {
-            console.log(`[SampleController] update_records Error: ${e.message}`);
+            console.log(`[SampleController] updateRecords Error: ${e.message}`);
+            return null;
         }
     }
 
     async deleteRecords(conditions) {
         try {
-            const result = await this.model.updateMany({
-                ...conditions,
-            }, {
-                is_active: false,
-                is_deleted: true,
-                $currentDate: { updated_on: true }
-            });
+            const result = await this.model.updateMany(
+                { ...conditions },
+                {
+                    isActive: false,
+                    isDeleted: true,
+                    $currentDate: { updatedOn: true },
+                }
+            );
 
-            return this.jsonize(result);
+            return Controller.jsonize(result);
         } catch (e) {
-            console.log(`[SampleController] delete_records Error: ${e.message}`);
+            console.log(`[SampleController] deleteRecords Error: ${e.message}`);
+            return null;
         }
     }
 }
