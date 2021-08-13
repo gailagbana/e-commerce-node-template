@@ -1,6 +1,6 @@
 /**
  * @author Oguntuberu Nathan O. <nateoguns.work@gmail.com>
-**/
+ * */
 
 const Joi = require('@hapi/joi');
 
