@@ -1,59 +1,50 @@
 /**
  * @author Oguntuberu Nathan O. <nateoguns.work@gmail.com>
-**/
+ * */
+const { createWriteStream } = require('fs');
+const { resolve } = require('path');
+
+const morgan = require('morgan');
+const { createLogger, format, transports } = require('winston');
 require('dotenv').config();
+
 const { NODE_ENV } = process.env;
 
 /** MORGAN */
-let { createWriteStream } = require('fs');
-let { resolve } = require('path');
+const devFormat =
+    '[:date[web] :remote-addr :remote-user ] :method :url HTTP/:http-version | :status :response-time ms';
+const prodFormat =
+    '[:date[web] :remote-addr :remote-user ] :method :url HTTP/:http-version :referrer - :user-agent | :status :response-time ms';
+const morganFormat = NODE_ENV === 'production' ? prodFormat : devFormat;
 
-let morgan = require('morgan');
-let dev_format = '[:date[web] :remote-addr :remote-user ] :method :url HTTP/:http-version | :status :response-time ms'
-let prod_format = '[:date[web] :remote-addr :remote-user ] :method :url HTTP/:http-version :referrer - :user-agent | :status :response-time ms'
-let morgan_format = NODE_ENV === 'production' ? prod_format : dev_format;
+// eslint-disable-next-line object-curly-newline
+const requestLogStream = createWriteStream(resolve(__dirname, '../../logs/request.log'), {
+    flags: 'a',
+    // eslint-disable-next-line object-curly-newline
+});
 
-let request_log_stream = createWriteStream(resolve(__dirname, `../../logs/request.log`), { flags: 'a' });
-exports.morgan = morgan(morgan_format, { stream: request_log_stream });
+exports.morgan = morgan(morganFormat, { stream: requestLogStream });
 
 /** WINSTON */
-let {
-    createLogger,
-    format,
-    transports,
-} = require('winston');
+const { colorize, combine, printf, timestamp } = format;
 
-let {
-    colorize,
-    combine,
-    printf,
-    timestamp,
-} = format
-
-let log_transports = {
+const logTransports = {
     console: new transports.Console({ level: 'warn' }),
-    combined_log: new transports.File({ level: 'info', filename: `logs/combined.log` }),
-    error_log: new transports.File({ level: 'error', filename: `logs/error.log` }),
-    exception_log: new transports.File({ filename: 'logs/exception.log' }),
+    combinedLog: new transports.File({ level: 'info', filename: 'logs/combined.log' }),
+    errorLog: new transports.File({ level: 'error', filename: 'logs/error.log' }),
+    exceptionLog: new transports.File({ filename: 'logs/exception.log' }),
 };
 
-let log_format = printf(({ level, message, timestamp }) => `[${timestamp} : ${level}] - ${message}`);
+const logFormat = printf(
+    // eslint-disable-next-line no-shadow
+    ({ level, message, timestamp }) => `[${timestamp} : ${level}] - ${message}`
+);
 
-let logger = createLogger({
-    transports: [
-        log_transports.console,
-        log_transports.combined_log,
-        log_transports.error_log,
-    ],
-    exceptionHandlers: [
-        log_transports.exception_log,
-    ],
+const logger = createLogger({
+    transports: [logTransports.console, logTransports.combinedLog, logTransports.errorLog],
+    exceptionHandlers: [logTransports.exceptionLog],
     exitOnError: false,
-    format: combine(
-        colorize(),
-        timestamp(),
-        log_format
-    )
+    format: combine(colorize(), timestamp(), logFormat),
 });
 
 exports.logger = logger;
