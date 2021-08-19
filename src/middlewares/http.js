@@ -14,7 +14,7 @@ module.exports = {
         next(returnData);
     },
 
-    handleError(error, request, response) {
+    handleError(error, request, response, next) {
         // Log errors
         logger.error(error.error || error.message);
 
@@ -28,7 +28,6 @@ module.exports = {
 
     processResponse(request, response, next) {
         if (!request.payload) return next();
-
         const { status } = request.payload;
         return response.status(status).json(request.payload);
     },
