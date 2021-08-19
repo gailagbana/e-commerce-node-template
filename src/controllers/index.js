@@ -23,28 +23,19 @@ class Controller {
         return JSON.parse(JSON.stringify(data));
     }
 
-    static async setUniqueKey(model, _id, timeStamp) {
-        const n = (await model.estimatedDocumentCount({ timeStamp: { $lt: timeStamp } })) + 1;
-        await model.updateOne({ _id }, { id: n });
-        return n;
+    static processError(error) {
+        return { ...Controller.jsonize({ failed: true, error: `Controller ${error}` }) };
     }
 
     async createRecord(data) {
         try {
-            const recordToCreate = new this.model({ ...data });
+            const n = (await this.model.estimatedDocumentCount()) + 1;
+            const recordToCreate = new this.model({ id: n, ...data });
             const createdRecord = await recordToCreate.save();
 
-            return {
-                ...Controller.jsonize(createdRecord),
-                id: await Controller.setUniqueKey(
-                    this.model,
-                    createdRecord._id,
-                    createdRecord.timeStamp
-                ),
-            };
+            return { ...Controller.jsonize(createdRecord) };
         } catch (e) {
-            console.log(`[SampleController] createRecord Error: ${e.message}`);
-            return null;
+            return Controller.processError(e.message);
         }
     }
 
@@ -73,8 +64,7 @@ class Controller {
                 .sort(sortOptions);
             return Controller.jsonize([...result]);
         } catch (e) {
-            console.log(`[SampleController] readRecords: ${e.message}`);
-            return null;
+            return Controller.processError(e.message);
         }
     }
 
@@ -91,8 +81,7 @@ class Controller {
 
             return Controller.jsonize({ ...result, data });
         } catch (e) {
-            console.log(`[SampleController] updateRecords Error: ${e.message}`);
-            return null;
+            return Controller.processError(e.message);
         }
     }
 
@@ -109,8 +98,7 @@ class Controller {
 
             return Controller.jsonize(result);
         } catch (e) {
-            console.log(`[SampleController] deleteRecords Error: ${e.message}`);
-            return null;
+            return Controller.processError(e.message);
         }
     }
 }
