@@ -2,7 +2,7 @@
  * @author Oguntuberu Nathan O. <nateoguns.work@gmail.com>
  */
 
-const { Transform, Readable } = require('stream');
+const { Readable } = require('stream');
 
 class SampleReadStream extends Readable {
     constructor(source, options = {}) {
@@ -31,24 +31,4 @@ class SampleReadStream extends Readable {
         this.push(null);
     }
 }
-
-class SampleTransformStream extends Transform {
-    constructor(ContactController, tenantId, options = {}) {
-        super(options);
-        this.contactController = ContactController;
-        this.tenantId = tenantId;
-    }
-
-    async _transform(chunk, encoding, callback) {
-        const asString = Buffer.from(chunk).toString();
-        const asObject = JSON.parse(asString);
-        const record = await this.contactController.createRecord({
-            ...asObject,
-            tenantId: this.tenantId,
-        });
-        this.push(JSON.stringify(record));
-        callback();
-    }
-}
-
-module.exports = { SampleTransformStream, SampleReadStream };
+module.exports = SampleReadStream;

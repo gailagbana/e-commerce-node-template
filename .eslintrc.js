@@ -60,7 +60,6 @@ const rules = {
             },
         ],
         'no-underscore-dangle': ['error', { allow: ['_id', '_v'] }],
-        'max-classes-per-file': ['error', 2],
         'operator-linebreak': ['error', 'after'],
         'no-param-reassign': ['error', { props: false }],
     },
