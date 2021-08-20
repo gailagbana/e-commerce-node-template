@@ -8,15 +8,8 @@ const SampleSchema = new Schema({
     id: {
         type: Number,
         required: true,
+        unique: true,
         default: 0,
-    },
-    compoundIndexA: {
-        type: String,
-        required: true,
-    },
-    compoundIndexB: {
-        type: Number,
-        required: true,
     },
     // Model Required fields
     isActive: {
