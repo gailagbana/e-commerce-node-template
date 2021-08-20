@@ -6,7 +6,7 @@ const appEvent = require('../events/_config');
 const { buildQuery } = require('../utilities/query');
 
 class RootService {
-    static validateEmail(rawEmail) {
+    validateEmail(rawEmail) {
         const email = rawEmail.trim();
         if (email.length < 6) {
             return {
@@ -25,7 +25,7 @@ class RootService {
         };
     }
 
-    static processFailedResponse(message, code = 400) {
+    processFailedResponse(message, code = 400) {
         return {
             error: message,
             payload: null,
@@ -33,7 +33,7 @@ class RootService {
         };
     }
 
-    static processSuccessfulResponse(
+    processSuccessfulResponse(
         payload,
         code = 200,
         sendRawResponse = false,
@@ -48,7 +48,7 @@ class RootService {
         };
     }
 
-    static async handleDatabaseRead(Controller, queryOptions, extraOptions = {}) {
+    async handleDatabaseRead(Controller, queryOptions, extraOptions = {}) {
         const { count, fieldsToReturn, limit, seekConditions, skip, sortCondition } =
             buildQuery(queryOptions);
 
@@ -63,34 +63,34 @@ class RootService {
         return result;
     }
 
-    static processSingleRead(result) {
-        if (result && result.id) return RootService.processSuccessfulResponse(result);
-        return RootService.processFailedResponse('Resource not found', 404);
+    processSingleRead(result) {
+        if (result && result.id) return this.processSuccessfulResponse(result);
+        return this.processFailedResponse('Resource not found', 404);
     }
 
-    static processMultipleReadResults(result) {
+    processMultipleReadResults(result) {
         if (result && (result.count || result.length >= 0)) {
-            return RootService.processSuccessfulResponse(result);
+            return this.processSuccessfulResponse(result);
         }
-        return RootService.processFailedResponse('Resources not found', 404);
+        return this.processFailedResponse('Resources not found', 404);
     }
 
-    static processUpdateResult(result, eventName) {
+    processUpdateResult(result, eventName) {
         if (result && result.ok && result.nModified) {
             if (eventName) {
                 appEvent.emit(eventName, result);
             }
-            return RootService.processSuccessfulResponse(result);
+            return this.processSuccessfulResponse(result);
         }
         if (result && result.ok && !result.nModified) {
-            return RootService.processSuccessfulResponse(result, 210);
+            return this.processSuccessfulResponse(result, 210);
         }
-        return RootService.processFailedResponse('Update failed', 200);
+        return this.processFailedResponse('Update failed', 200);
     }
 
-    static processDeleteResult(result) {
-        if (result && result.nModified) return RootService.processSuccessfulResponse(result);
-        return RootService.processFailedResponse('Deletion failed.', 200);
+    processDeleteResult(result) {
+        if (result && result.nModified) return this.processSuccessfulResponse(result);
+        return this.processFailedResponse('Deletion failed.', 200);
     }
 }
 
