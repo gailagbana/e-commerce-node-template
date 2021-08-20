@@ -29,20 +29,20 @@ try {
             request.payload = await sampleService.readRecordsByWildcard(request, next);
             next();
         })
-        .put('/:id', async (request, response, next) => {
-            request.payload = await sampleService.updateRecordById(request, next);
-            next();
-        })
         .put('/', async (request, response, next) => {
             request.payload = await sampleService.updateRecords(request, next);
             next();
         })
-        .delete('/:id', async (request, response, next) => {
-            request.payload = await sampleService.deleteRecordById(request, next);
+        .put('/:id', async (request, response, next) => {
+            request.payload = await sampleService.updateRecordById(request, next);
             next();
         })
         .delete('/', async (request, response, next) => {
             request.payload = await sampleService.deleteRecords(request, next);
+            next();
+        })
+        .delete('/:id', async (request, response, next) => {
+            request.payload = await sampleService.deleteRecordById(request, next);
             next();
         });
 } catch (e) {
