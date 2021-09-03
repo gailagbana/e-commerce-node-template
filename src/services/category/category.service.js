@@ -1,23 +1,22 @@
 const RootService = require('../_root');
 const { buildQuery, buildWildcardOptions } = require('../../utilities/query');
 
-class InventoryService extends RootService {
-    constructor(inventoryController, schemaValidator) {
-        /** */
+class CategoryService extends RootService {
+    constructor(categoryController, schemaValidator) {
         super();
-        this.inventoryController = inventoryController;
+        this.categoryController = categoryController;
         this.schemaValidator = schemaValidator;
-        this.serviceName = 'InventoryService';
+        this.serviceName = 'CategoryService';
     }
 
-    async createInventory(request, next) {
+    async createCategory(request, next) {
         try {
             const { body } = request;
-            const { error } = this.schemaValidator.createInventory.validate(body);
+            const { error } = this.schemaValidator.createCategory.validate(body);
             if (error) throw new Error(error);
 
             delete body.id;
-            const result = await this.inventoryController.createRecord({ ...body });
+            const result = await this.categoryController.createRecord({ ...body });
             if (result.failed) {
                 throw new Error(result.error);
             } else {
@@ -25,16 +24,16 @@ class InventoryService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] createInventory: ${e.message}`,
+                `[${this.serviceName}] createCategory: ${e.message}`,
                 500
             );
             return next(err);
         }
     }
 
-    async readInventories(request, next) {
+    async readCategories(request, next) {
         try {
-            const result = await this.inventoryController.readRecords({
+            const result = await this.categoryController.readRecords({
                 isDeleted: false,
                 isActive: true,
             });
@@ -45,19 +44,19 @@ class InventoryService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] readInventories: ${e.message}`,
+                `[${this.serviceName}] readCategories: ${e.message}`,
                 500
             );
             return next(err);
         }
     }
 
-    async readInventoryById(request, next) {
+    async readCategoryById(request, next) {
         try {
             const { id } = request.params;
             if (!id) return next(this.processFailedResponse('Invalid ID supplied.'));
 
-            const result = await this.inventoryController.readRecords({ id, isActive: true });
+            const result = await this.categoryController.readRecords({ id, isActive: true });
             if (result.failed) {
                 throw new Error(result.error);
             } else {
@@ -65,18 +64,18 @@ class InventoryService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] updateInventoryById: ${e.message}`,
+                `[${this.serviceName}] updateCategoryById: ${e.message}`,
                 500
             );
             return next(err);
         }
     }
 
-    async readInventoryByFilter(request, next) {
+    async readCategoryByFilter(request, next) {
         try {
             const { query } = request;
 
-            const result = await this.handleDatabaseRead(this.inventoryController, query);
+            const result = await this.handleDatabaseRead(this.categoryController, query);
             if (result.failed) {
                 throw new Error(result.error);
             } else {
@@ -84,21 +83,21 @@ class InventoryService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] readInventoriesByFilter: ${e.message}`,
+                `[${this.serviceName}] readCategoryByFilter: ${e.message}`,
                 500
             );
             return next(err);
         }
     }
 
-    async updateInventoryById(request, next) {
+    async updateCategoryById(request, next) {
         try {
             const { id } = request.params;
             const data = request.body;
 
             if (!id) return next(this.processFailedResponse('Invalid ID supplied.'));
 
-            const result = await this.inventoryController.updateRecords({ id }, { ...data });
+            const result = await this.categoryController.updateRecords({ id }, { ...data });
             if (result.failed) {
                 throw new Error(result.error);
             } else {
@@ -106,19 +105,19 @@ class InventoryService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] updateInventoryById: ${e.message}`,
+                `[${this.serviceName}] updateCategoryById: ${e.message}`,
                 500
             );
             return next(err);
         }
     }
 
-    async updateInventories(request, next) {
+    async updateCategories(request, next) {
         try {
             const { options, data } = request.body;
             const { seekConditions } = buildQuery(options);
 
-            const result = await this.inventoryController.updateRecords(
+            const result = await this.categoryController.updateRecords(
                 { ...seekConditions },
                 { ...data }
             );
@@ -129,19 +128,19 @@ class InventoryService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] updateInventories: ${e.message}`,
+                `[${this.serviceName}] updateCategories: ${e.message}`,
                 500
             );
             return next(err);
         }
     }
 
-    async deleteInventoryById(request, next) {
+    async deleteCategoryById(request, next) {
         try {
             const { id } = request.params;
             if (!id) return next(this.processFailedResponse('Invalid ID supplied.'));
 
-            const result = await this.inventoryController.deleteRecords({ id });
+            const result = await this.categoryController.deleteRecords({ id });
             if (result.failed) {
                 throw new Error(result.error);
             } else {
@@ -149,19 +148,19 @@ class InventoryService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] deleteInventoryById: ${e.message}`,
+                `[${this.serviceName}] deleteCategoryById: ${e.message}`,
                 500
             );
             return next(err);
         }
     }
 
-    async deleteInventory(request, next) {
+    async deleteCategory(request, next) {
         try {
             const { options } = request.body;
             const { seekConditions } = buildQuery(options);
 
-            const result = await this.inventoryController.deleteRecords({ ...seekConditions });
+            const result = await this.categoryController.deleteRecords({ ...seekConditions });
             if (result.failed) {
                 throw new Error(result.error);
             } else {
@@ -169,7 +168,7 @@ class InventoryService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] deleteInventory: ${e.message}`,
+                `[${this.serviceName}] deleteCategory: ${e.message}`,
                 500
             );
             return next(err);
@@ -177,4 +176,4 @@ class InventoryService extends RootService {
     }
 }
 
-module.exports = InventoryService;
+module.exports = CategoryService;

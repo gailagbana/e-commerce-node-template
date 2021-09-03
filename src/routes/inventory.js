@@ -4,40 +4,41 @@ const Controller = require('../controllers/index');
 const inventorySchemaValidator = require('../validators/inventory');
 const InventoryService = require('../services/inventory/inventory.service');
 
+const { isAdmin, isSeller, isAuthenticated } = require('../utilities/encryption');
 const inventoryController = new Controller('Inventory');
 const inventoryService = new InventoryService(inventoryController, inventorySchemaValidator);
 
 try {
     router
-        .post('/', async (request, response, next) => {
+        .post('/'[(isAuthenticated, isAdmin || isSeller)], async (request, response, next) => {
             request.payload = await inventoryService.createInventory(request, next);
             next();
         })
-        .get('/', async (request, response, next) => {
+        .get('/'[isAuthenticated], async (request, response, next) => {
             request.payload = await inventoryService.readInventories(request, next);
             next();
         })
-        .get('/filter/items', async (request, response, next) => {
+        .get('/filter/inventories'[(isAuthenticated, isAdmin)], async (request, response, next) => {
             request.payload = await inventoryService.readInventoryByFilter(request, next);
             next();
         })
-        .get('/:id', async (request, response, next) => {
+        .get('/:id'[isAuthenticated], async (request, response, next) => {
             request.payload = await inventoryService.readInventoryById(request, next);
             next();
         })
-        .put('/', async (request, response, next) => {
+        .put('/'[(isAuthenticated, isAdmin)], async (request, response, next) => {
             request.payload = await inventoryService.updateInventories(request, next);
             next();
         })
-        .put('/:id', async (request, response, next) => {
+        .put('/:id'[(isAuthenticated, isAdmin || isSeller)], async (request, response, next) => {
             request.payload = await inventoryService.updateInventoryById(request, next);
             next();
         })
-        .delete('/', async (request, response, next) => {
+        .delete('/'[(isAuthenticated, isAdmin || isSeller)], async (request, response, next) => {
             request.payload = await inventoryService.deleteInventory(request, next);
             next();
         })
-        .delete('/:id', async (request, response, next) => {
+        .delete('/:id'[(isAuthenticated, isAdmin || isSeller)], async (request, response, next) => {
             request.payload = await inventoryService.deleteInventoryById(request, next);
             next();
         });
