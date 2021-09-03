@@ -34,6 +34,31 @@ class SampleService extends RootService {
             return next(err);
         }
     }
+    async readLogin(request, next){
+        try{ 
+            const {body} = request;
+            const {error} = this.schemaValidator.validate(body);
+            if(error) throw new Error(error)
+        
+            delete body.id;
+            const result = await this.sampleController.readLogin({...body});
+            if (result.failed) throw new Error(result.error)
+
+            const isPasswordCorrect = await verifyObject(body.password, result.password);
+            if (isPasswordCorrect.failed) throw new Error(isPasswordCorrect.error);
+
+            const token = await generateAuthToken(result);
+            if (token.failed) throw new Error(token.error);
+
+            return this.processLoginRead(token, result)
+        } catch (e){
+            const err = this.processFailedResponse(
+                 `[${this.serviceName}] readLogin: ${e.message}`,
+                  500
+            );
+            return next(err);
+        }
+    }
 
     async readRecordById(request, next) {
         try {

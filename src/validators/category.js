@@ -4,13 +4,6 @@ createCategory = Joi.object({
     title: Joi.string().min(3).required(),
     description: Joi.string(),
 });
-
-updateCategory = Joi.object({
-    title: Joi.string().min(3),
-    description: Joi.string(),
-});
-
 module.exports = {
     createCategory,
-    updateCategory,
 };

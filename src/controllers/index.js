@@ -1,6 +1,3 @@
-/**
- * @author Oguntuberu Nathan O. <nateoguns.work@gmail.com>
- * */
 const mongoose = require('mongoose');
 
 class Controller {
@@ -32,7 +29,7 @@ class Controller {
             const n = (await this.model.estimatedDocumentCount()) + 1;
             const recordToCreate = new this.model({ id: n, ...data });
             const createdRecord = await recordToCreate.save();
-
+           
             return { ...Controller.jsonize(createdRecord) };
         } catch (e) {
             return Controller.processError(e.message);

@@ -7,10 +7,16 @@ const { handle404, handleError, setupRequest, processResponse } = require('../mi
 
 /** Route Handlers */
 const sampleRouteHandler = require('./sample');
+const userRouteHandler = require('./user');
+const inventoryRouteHandler = require('./inventory');
+const categoryRouteHandler = require('./category');
 
 /** Cross Origin Handling */
 router.use(setupRequest);
 router.use('/samples', sampleRouteHandler);
+router.use('/user', userRouteHandler);
+router.use('/inventory', inventoryRouteHandler);
+router.use('/category', categoryRouteHandler);
 router.use(processResponse);
 
 /** Static Routes */

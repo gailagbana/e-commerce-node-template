@@ -1,6 +1,3 @@
-/**
- * @author Oguntuberu Nathan O. <nateoguns.work@gmail.com>
- * */
 const { logger } = require('../utilities/logger');
 
 module.exports = {

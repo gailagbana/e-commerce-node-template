@@ -18,12 +18,12 @@ module.exports.connect = () => {
                 useNewUrlParser: true,
                 useUnifiedTopology: true,
             },
-            (err) => {
+            (err, data) => {
                 if (err) {
                     console.log('Could not connect to database');
                     return;
                 }
-                console.log('Database connection established.');
+                if (data) console.log('Database connection established.');
             }
         );
     } catch (e) {

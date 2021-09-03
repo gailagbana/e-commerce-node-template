@@ -1,9 +1,8 @@
 const RootService = require('../_root');
-const { buildQuery, buildWildcardOptions } = require('../../utilities/query');
+const { buildQuery } = require('../../utilities/query');
 
 class InventoryService extends RootService {
     constructor(inventoryController, schemaValidator) {
-        /** */
         super();
         this.inventoryController = inventoryController;
         this.schemaValidator = schemaValidator;
@@ -65,7 +64,7 @@ class InventoryService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] updateInventoryById: ${e.message}`,
+                `[${this.serviceName}] readInventoryById: ${e.message}`,
                 500
             );
             return next(err);
@@ -84,7 +83,7 @@ class InventoryService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] readInventoriesByFilter: ${e.message}`,
+                `[${this.serviceName}] readInventoryByFilter: ${e.message}`,
                 500
             );
             return next(err);

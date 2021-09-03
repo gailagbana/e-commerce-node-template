@@ -1,27 +1,22 @@
 const RootService = require('../_root');
 const { buildQuery } = require('../../utilities/query');
-const { hashObject, verifyObject, generateAuthToken } = require('../../utilities/encryption');
 
-class UserService extends RootService {
-    constructor(userController, schemaValidator) {
-        /** */
+class StoreService extends RootService {
+    constructor(storeController, schemaValidator) {
         super();
-        this.userController = userController;
+        this.storeController = storeController;
         this.schemaValidator = schemaValidator;
-        this.serviceName = 'UserService';
+        this.serviceName = 'StoreService';
     }
 
-    async createUser(request, next) {
+    async createStore(request, next) {
         try {
             const { body } = request;
-            const { error } = this.schemaValidator.createUser.validate(body);
+            const { error } = this.schemaValidator.createStore.validate(body);
             if (error) throw new Error(error);
 
             delete body.id;
-
-            body.password = await hashObject(body.password);
-
-            const result = await this.userController.createRecord({ ...body });
+            const result = await this.storeController.createRecord({ ...body });
             if (result.failed) {
                 throw new Error(result.error);
             } else {
@@ -29,63 +24,16 @@ class UserService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] createUser: ${e.message}`,
+                `[${this.serviceName}] createStore: ${e.message}`,
                 500
             );
             return next(err);
         }
     }
 
-    async userLogin(request, next) {
+    async readStores(request, next) {
         try {
-            const { body } = request;
-            const { error } = this.schemaValidator.userLogin.validate(body);
-            if (error) throw new Error(error);
-
-            delete body.id;
-            let { password, email } = body;
-            const user = await this.userController.readRecords({ email });
-            if (user.failed) throw new Error(user.error);
-
-            const isPasswordCorrect = await verifyObject(password, user[0].password);
-            if (!isPasswordCorrect) throw new Error('Incorrect password');
-
-            const token = await generateAuthToken(user);
-            const result = { ...user[0], token };
-
-            return this.processSingleRead(result);
-        } catch (e) {
-            const err = this.processFailedResponse(
-                `[${this.serviceName}] userLogin: ${e.message}`,
-                500
-            );
-            return next(err);
-        }
-    }
-
-    async readUserById(request, next) {
-        try {
-            const { id } = request.params;
-            if (!id) return next(this.processFailedResponse('Invalid ID supplied.'));
-
-            const result = await this.userController.readRecords({ id, isActive: true });
-            if (result.failed) {
-                throw new Error(result.error);
-            } else {
-                return this.processSingleRead(result[0]);
-            }
-        } catch (e) {
-            const err = this.processFailedResponse(
-                `[${this.serviceName}] readUserById: ${e.message}`,
-                500
-            );
-            return next(err);
-        }
-    }
-
-    async readUsers(request, next) {
-        try {
-            const result = await this.userController.readRecords({
+            const result = await this.storeController.readRecords({
                 isDeleted: false,
                 isActive: true,
             });
@@ -96,18 +44,38 @@ class UserService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] readInventories: ${e.message}`,
+                `[${this.serviceName}] readStores: ${e.message}`,
                 500
             );
             return next(err);
         }
     }
 
-    async readUsersByFilter(request, next) {
+    async readStoreById(request, next) {
+        try {
+            const { id } = request.params;
+            if (!id) return next(this.processFailedResponse('Invalid ID supplied.'));
+
+            const result = await this.storeController.readRecords({ id, isActive: true });
+            if (result.failed) {
+                throw new Error(result.error);
+            } else {
+                return this.processSingleRead(result[0]);
+            }
+        } catch (e) {
+            const err = this.processFailedResponse(
+                `[${this.serviceName}] readStoreById: ${e.message}`,
+                500
+            );
+            return next(err);
+        }
+    }
+
+    async readStoresByFilter(request, next) {
         try {
             const { query } = request;
 
-            const result = await this.handleDatabaseRead(this.userController, query);
+            const result = await this.handleDatabaseRead(this.storeController, query);
             if (result.failed) {
                 throw new Error(result.error);
             } else {
@@ -115,21 +83,21 @@ class UserService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] readUsersByFilter: ${e.message}`,
+                `[${this.serviceName}] readStoresByFilter: ${e.message}`,
                 500
             );
             return next(err);
         }
     }
 
-    async updateUserById(request, next) {
+    async updateStoreById(request, next) {
         try {
             const { id } = request.params;
             const data = request.body;
 
             if (!id) return next(this.processFailedResponse('Invalid ID supplied.'));
 
-            const result = await this.userController.updateRecords({ id }, { ...data });
+            const result = await this.storeController.updateRecords({ id }, { ...data });
             if (result.failed) {
                 throw new Error(result.error);
             } else {
@@ -137,19 +105,19 @@ class UserService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] updateUserById: ${e.message}`,
+                `[${this.serviceName}] updateStoreById: ${e.message}`,
                 500
             );
             return next(err);
         }
     }
 
-    async updateUsers(request, next) {
+    async updateStores(request, next) {
         try {
             const { options, data } = request.body;
             const { seekConditions } = buildQuery(options);
 
-            const result = await this.userController.updateRecords(
+            const result = await this.storesController.updateRecords(
                 { ...seekConditions },
                 { ...data }
             );
@@ -160,19 +128,19 @@ class UserService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] updateUsers: ${e.message}`,
+                `[${this.serviceName}] updateStores: ${e.message}`,
                 500
             );
             return next(err);
         }
     }
 
-    async deleteUserById(request, next) {
+    async deleteStoreById(request, next) {
         try {
             const { id } = request.params;
             if (!id) return next(this.processFailedResponse('Invalid ID supplied.'));
 
-            const result = await this.userController.deleteRecords({ id });
+            const result = await this.storeController.deleteRecords({ id });
             if (result.failed) {
                 throw new Error(result.error);
             } else {
@@ -180,19 +148,19 @@ class UserService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] deleteUserById: ${e.message}`,
+                `[${this.serviceName}] deleteStoreById: ${e.message}`,
                 500
             );
             return next(err);
         }
     }
 
-    async deleteUsers(request, next) {
+    async deleteStores(request, next) {
         try {
             const { options } = request.body;
             const { seekConditions } = buildQuery(options);
 
-            const result = await this.userController.deleteRecords({ ...seekConditions });
+            const result = await this.storeController.deleteRecords({ ...seekConditions });
             if (result.failed) {
                 throw new Error(result.error);
             } else {
@@ -200,7 +168,7 @@ class UserService extends RootService {
             }
         } catch (e) {
             const err = this.processFailedResponse(
-                `[${this.serviceName}] deleteUsers: ${e.message}`,
+                `[${this.serviceName}] deleteStores: ${e.message}`,
                 500
             );
             return next(err);
@@ -208,4 +176,4 @@ class UserService extends RootService {
     }
 }
 
-module.exports = UserService;
+module.exports = StoreService;

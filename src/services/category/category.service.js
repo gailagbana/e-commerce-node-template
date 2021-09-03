@@ -1,5 +1,5 @@
 const RootService = require('../_root');
-const { buildQuery, buildWildcardOptions } = require('../../utilities/query');
+const { buildQuery } = require('../../utilities/query');
 
 class CategoryService extends RootService {
     constructor(categoryController, schemaValidator) {
